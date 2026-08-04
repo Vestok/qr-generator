@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Générateur de QR Code</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="carte">
+    <h1>Générateur de QR Code</h1>
+    <p class="sous-titre">Saisissez une URL, obtenez le QR code qui pointe dessus.</p>
+
+    <!-- La touche Entrée déclenche le "submit" du formulaire -->
+    <form id="formulaire">
+      <!-- Boutons radio déguisés en onglets par le CSS.
+           L'input dans le <label> rend tout l'onglet cliquable. -->
+      <div class="onglets">
+        <label class="onglet">
+          <input type="radio" name="mode" value="url" checked>
+          Site web
+        </label>
+        <label class="onglet">
+          <input type="radio" name="mode" value="wifi">
+          Wi-Fi
+        </label>
+      </div>
+
+      <!-- Groupe de champs pour le mode "Site web" -->
+      <div id="champs-url">
+        <label for="champ-url">Adresse du site</label>
+        <input
+          type="url"
+          id="champ-url"
+          placeholder="https://exemple.com"
+          required
+          autofocus
+        >
+      </div>
+
+      <!-- Mode "Wi-Fi", caché au départ. Le QR n'est que du texte au format
+           WIFI:T:WPA;S:nom;P:motdepasse;; -->
+      <div id="champs-wifi" class="cache">
+        <label for="champ-ssid">Nom du réseau (SSID)</label>
+        <input type="text" id="champ-ssid" placeholder="Livebox-1234">
+
+        <label for="champ-motdepasse">Mot de passe</label>
+        <!-- type="text" et non "password" : voulu, le QR se partage aux invités -->
+        <input type="text" id="champ-motdepasse" placeholder="Mot de passe du réseau">
+
+        <label for="champ-securite">Sécurité</label>
+        <select id="champ-securite">
+          <option value="WPA" selected>WPA / WPA2 (le plus courant)</option>
+          <option value="WEP">WEP (ancien, rare aujourd'hui)</option>
+          <option value="nopass">Réseau ouvert (sans mot de passe)</option>
+        </select>
+      </div>
+
+      <div class="options">
+        <label for="champ-taille">Taille</label>
+        <!-- Tailles fixes plutôt qu'un champ libre : moins d'erreurs -->
+        <select id="champ-taille">
+          <option value="200">Petit (200 px)</option>
+          <option value="300" selected>Moyen (300 px)</option>
+          <option value="500">Grand (500 px)</option>
+        </select>
+      </div>
+
+      <button type="submit">Générer le QR code</button>
+    </form>
+
+    <!-- Zone de résultat, cachée au départ, révélée en JS -->
+    <section id="resultat" class="cache">
+      <!-- La librairie crée l'image du QR code dans ce conteneur -->
+      <div id="conteneur-qr"></div>
+      <p id="url-affichee"></p>
+      <button type="button" id="bouton-telecharger">Télécharger en PNG</button>
+    </section>
+
+    <p id="message-erreur" class="erreur cache"></p>
+  </main>
+
+  <!-- qrcode.js (davidshimjs) en local : aucune connexion nécessaire.
+       Expose un objet global QRCode. -->
+  <script src="qrcode.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

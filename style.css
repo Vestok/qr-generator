@@ -1,0 +1,322 @@
+/* Minimalisme suisse : grille stricte, angles droits, aucune ombre, traits
+   d'un pixel. La hiérarchie passe par la taille et l'espacement, pas par
+   la couleur. Palette d'origine conservée. */
+
+:root {
+  /* --- Couleurs (inchangées) --- */
+  --couleur-fond: #f4f5fb;
+  --couleur-carte: #ffffff;
+  --couleur-accent: #4f46e5;
+  --couleur-accent-survol: #4338ca;
+  --couleur-texte: #1f2937;
+  --couleur-texte-doux: #6b7280;
+  --couleur-erreur: #dc2626;
+
+  /* Le #059669 d'origine ne donnait que 3,8:1 avec du blanc, sous le seuil
+     de 4,5:1. On baisse la luminosité, la teinte reste. */
+  --couleur-succes: #047857;
+  --couleur-succes-survol: #065f46;
+
+  /* Un seul trait, une seule teinte : il remplace les ombres */
+  --trait: #e5e7eb;
+  --trait-fort: #d1d5db;
+
+  /* Espacement sur une base de 8 px. Toutes les marges en sont des
+     multiples : c'est ce qui donne la rigueur, plus que les couleurs. */
+  --espace-1: 0.5rem;   /*  8px */
+  --espace-2: 1rem;     /* 16px */
+  --espace-3: 1.5rem;   /* 24px */
+  --espace-4: 2rem;     /* 32px */
+  --espace-6: 3rem;     /* 48px */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--couleur-fond);
+  color: var(--couleur-texte);
+  /* Centre la carte verticalement et horizontalement */
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espace-2);
+  /* font-smoothing : sans lui, les graisses fines paraissent grasses */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== La carte principale ===== */
+
+.carte {
+  background: var(--couleur-carte);
+  /* Trait fin au lieu d'une ombre : la carte se détache par contraste */
+  border: 1px solid var(--trait);
+  padding: var(--espace-4);
+  width: 100%;
+  max-width: 400px;
+  /* Aligné à gauche : dans un formulaire, l'œil a besoin d'un bord fixe */
+  text-align: left;
+}
+
+h1 {
+  font-size: 1.25rem;
+  /* 600 plutôt que 700 : suffisant pour porter la hiérarchie ici */
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: var(--espace-1);
+}
+
+.sous-titre {
+  color: var(--couleur-texte-doux);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  /* Le trait remplace une grande marge : deux blocs nets, en-tête et formulaire */
+  padding-bottom: var(--espace-3);
+  border-bottom: 1px solid var(--trait);
+  margin-bottom: var(--espace-3);
+}
+
+/* ===== Formulaire ===== */
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-3);
+}
+
+#champs-url,
+#champs-wifi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-2);
+}
+
+/* ===== Onglets (choix du type de QR code) ===== */
+
+/* Deux boutons jointifs : le décalage négatif évite le double filet */
+.onglets {
+  display: flex;
+}
+
+.onglet {
+  flex: 1;
+  /* flex + centrage : garantit les 44 px de cible tactile quelle que soit
+     la taille du texte, sans recalculer les marges. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 1px solid var(--trait-fort);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--couleur-texte-doux);
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.onglet + .onglet {
+  margin-left: -1px;
+}
+
+/* Le rond du radio est caché : c'est le <label> entier qui sert de bouton */
+.onglet input {
+  /* appearance: none et pas display: none : le champ reste atteignable au clavier */
+  appearance: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.onglet:hover {
+  color: var(--couleur-texte);
+}
+
+/* :has(input:checked) cible l'onglet coché. Il se signale par la couleur
+   du trait et du texte, sans remplissage. */
+.onglet:has(input:checked) {
+  color: var(--couleur-accent);
+  border-color: var(--couleur-accent);
+  /* La graisse double le signal : la couleur seule exclurait les daltoniens */
+  font-weight: 600;
+  /* z-index : le trait coloré doit passer au-dessus du trait gris voisin. */
+  position: relative;
+  z-index: 1;
+}
+
+/* Le focus clavier se voit sur l'onglet entier, le champ étant invisible. */
+.onglet:has(input:focus-visible) {
+  outline: 2px solid var(--couleur-accent);
+  outline-offset: 2px;
+}
+
+/* ===== Champs ===== */
+
+label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--couleur-texte-doux);
+  margin-bottom: var(--espace-1);
+}
+
+input,
+select {
+  width: 100%;
+  padding: 0.75rem;
+  /* Même règle que pour les onglets : jamais moins de 44 px de haut. */
+  min-height: 44px;
+  border: 1px solid var(--trait-fort);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: var(--couleur-texte);
+  background: var(--couleur-carte);
+  transition: border-color 0.15s;
+}
+
+/* Attention : le gris habituel des placeholders tombe à 2,5:1, illisible.
+   On reprend celui des textes secondaires (4,8:1), encore distinct du texte saisi. */
+input::placeholder {
+  color: var(--couleur-texte-doux);
+}
+
+input:hover,
+select:hover {
+  border-color: var(--couleur-texte-doux);
+}
+
+/* Champ actif : un trait accentué plutôt qu'un halo, plus fin */
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--couleur-accent);
+  /* box-shadow d'1 px : redouble le trait sans décaler la mise en page */
+  box-shadow: inset 0 0 0 1px var(--couleur-accent);
+}
+
+/* Champ désactivé (mot de passe d'un réseau ouvert) : grisé */
+input:disabled {
+  background: #f9fafb;
+  color: var(--couleur-texte-doux);
+  cursor: not-allowed;
+}
+
+/* Libellé à gauche du champ : align-items center les aligne sur leur milieu */
+.options {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-2);
+}
+
+.options label {
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.options select {
+  flex: 1;
+}
+
+/* ===== Boutons ===== */
+
+button {
+  background: var(--couleur-accent);
+  color: #ffffff;
+  border: 1px solid var(--couleur-accent);
+  padding: 0.75rem;
+  min-height: 44px;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+button:hover {
+  background: var(--couleur-accent-survol);
+  border-color: var(--couleur-accent-survol);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--couleur-accent);
+  outline-offset: 2px;
+}
+
+/* ===== Zone de résultat ===== */
+
+#resultat {
+  margin-top: var(--espace-3);
+  padding-top: var(--espace-3);
+  border-top: 1px solid var(--trait);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espace-2);
+}
+
+/* La librairie insère image et canvas : on cible tout ce qui est dedans */
+#conteneur-qr img,
+#conteneur-qr canvas {
+  /* Taille réelle 200/300/500 px, mais bornée pour ne pas déborder de la carte */
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--trait);
+}
+
+#url-affichee {
+  font-size: 0.75rem;
+  color: var(--couleur-texte-doux);
+  text-align: center;
+  /* Coupe proprement les URL très longues au lieu de casser la mise en page */
+  word-break: break-all;
+}
+
+/* Le vert distingue le téléchargement de la génération : les deux actions
+   se suivent dans le temps, elles ne se concurrencent pas. */
+#bouton-telecharger {
+  width: 100%;
+  background: var(--couleur-succes);
+  border-color: var(--couleur-succes);
+}
+
+#bouton-telecharger:hover {
+  background: var(--couleur-succes-survol);
+  border-color: var(--couleur-succes-survol);
+}
+
+#bouton-telecharger:focus-visible {
+  outline-color: var(--couleur-succes);
+}
+
+/* ===== Utilitaires ===== */
+
+/* Classe qu'on ajoute/retire en JavaScript pour montrer ou cacher un bloc */
+.cache {
+  display: none !important;
+}
+
+.erreur {
+  margin-top: var(--espace-2);
+  padding: var(--espace-1) 0;
+  border-top: 1px solid var(--couleur-erreur);
+  color: var(--couleur-erreur);
+  font-size: 0.8125rem;
+}
+
+/* Animations limitées au système : la règle coûte deux lignes */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
